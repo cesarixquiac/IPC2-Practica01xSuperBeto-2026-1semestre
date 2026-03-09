@@ -8,6 +8,7 @@ import dao.UsuarioDAO;
 import javax.swing.JOptionPane;
 import model.Usuario;
 import service.AuthService;
+import service.GameManager;
 import util.Sesion;
 
 /**
@@ -121,25 +122,33 @@ public class LoginFrame extends javax.swing.JFrame {
 
      private void redireccionar(Usuario usuario) {
 
-        String rol = usuario.getRol().getNombre();
+    String rol = usuario.getRol().getNombre();
 
-        switch (rol) {
+    switch (rol) {
 
-            case "JUGADOR":
-                JOptionPane.showMessageDialog(this,"Abrir pantalla de juego");
-                break;
+        case "JUGADOR":
 
-            case "ADMIN_TIENDA":
-                JOptionPane.showMessageDialog(this,"Abrir panel administrador");
-                break;
+            GameFrame frame = new GameFrame(usuario.getNombre());
 
-            case "SUPER_ADMIN":
-                JOptionPane.showMessageDialog(this,"Abrir panel super admin");
-                break;
-        }
+            GameManager manager = new GameManager(usuario, frame);
 
-        dispose();
+            frame.setVisible(true);
+
+            manager.iniciarPartida();
+
+            dispose();
+
+            break;
+
+        case "ADMIN_TIENDA":
+            JOptionPane.showMessageDialog(this,"Abrir panel administrador");
+            break;
+
+        case "SUPER_ADMIN":
+            JOptionPane.showMessageDialog(this,"Abrir panel super admin");
+            break;
     }
+}
     
     private void txtUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsuarioActionPerformed
         // TODO add your handling code here:
