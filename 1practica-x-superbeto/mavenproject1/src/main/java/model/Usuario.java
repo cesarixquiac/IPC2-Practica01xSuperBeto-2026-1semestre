@@ -63,8 +63,11 @@ public class Usuario {
         this.rol = rol;
     }
 
-    public Sucursal getSucursal() {
-        return sucursal;
+    public int getIdSucursal() {
+        if (this.sucursal != null) {
+            return this.sucursal.getIdSucursal();
+        }
+        return 1; 
     }
 
     public void setSucursal(Sucursal sucursal) {

@@ -10,6 +10,7 @@ package timer;
  */
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.swing.SwingUtilities;
 import service.GameManager;
 
 public class GameTimer {
@@ -35,13 +36,20 @@ public class GameTimer {
 
                 System.out.println("Tiempo restante: " + tiempo);
 
-                manager.revisarPedidosVencidos();
+                // Actualizar tiempo en la interfaz
+                SwingUtilities.invokeLater(() -> {
+                    manager.getGameFrame().actualizarTiempo(tiempo);
+                });
 
                 if(tiempo <= 0){
 
-                    System.out.println("Partida finalizada");
-
                     timer.cancel();
+
+                    SwingUtilities.invokeLater(() -> {
+                        manager.getGameFrame().finalizarPartida();
+                    });
+
+                    System.out.println("Partida finalizada");
                 }
             }
 

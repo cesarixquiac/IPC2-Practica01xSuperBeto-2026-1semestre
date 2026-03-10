@@ -25,7 +25,6 @@ public class PedidoDAO {
         try {
 
             conn = ConexionDB.getConnection();
-
             conn.setAutoCommit(false);
 
             String sqlPedido = """
@@ -73,7 +72,6 @@ public class PedidoDAO {
                     """;
 
             PreparedStatement psHistorial = conn.prepareStatement(sqlHistorial);
-
             psHistorial.setInt(1, idPedido);
             psHistorial.executeUpdate();
 
@@ -84,9 +82,7 @@ public class PedidoDAO {
         } catch (Exception e) {
 
             try {
-                if (conn != null) {
-                    conn.rollback();
-                }
+                if (conn != null) conn.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -96,4 +92,145 @@ public class PedidoDAO {
 
         return -1;
     }
+
+
+    public void actualizarEstadoPedido(int idPedido, int idEstado) {
+
+        Connection conn = null;
+
+        try {
+
+            conn = ConexionDB.getConnection();
+            conn.setAutoCommit(false);
+
+            String sqlUpdate = """
+                    UPDATE pedido
+                    SET id_estado_actual = ?
+                    WHERE id_pedido = ?
+                    """;
+
+            PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate);
+            psUpdate.setInt(1, idEstado);
+            psUpdate.setInt(2, idPedido);
+            psUpdate.executeUpdate();
+
+            String sqlHistorial = """
+                    INSERT INTO historial_estado
+                    (id_pedido, id_estado, fecha_cambio)
+                    VALUES (?, ?, NOW())
+                    """;
+
+            PreparedStatement psHistorial = conn.prepareStatement(sqlHistorial);
+            psHistorial.setInt(1, idPedido);
+            psHistorial.setInt(2, idEstado);
+            psHistorial.executeUpdate();
+
+            conn.commit();
+
+        } catch (Exception e) {
+
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
+            e.printStackTrace();
+        }
+    }
+
+
+    // NUEVO MÉTODO PARA TERMINAR PEDIDOS
+    public void finalizarPedido(int idPedido, int idEstado, int puntos) {
+
+        Connection conn = null;
+
+        try {
+
+            conn = ConexionDB.getConnection();
+            conn.setAutoCommit(false);
+
+            String sql = """
+                    UPDATE pedido
+                    SET id_estado_actual = ?,
+                        fecha_finalizacion = NOW(),
+                        puntos_obtenidos = ?
+                    WHERE id_pedido = ?
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, idEstado);
+            ps.setInt(2, puntos);
+            ps.setInt(3, idPedido);
+            ps.executeUpdate();
+
+            String sqlHistorial = """
+                    INSERT INTO historial_estado
+                    (id_pedido, id_estado, fecha_cambio)
+                    VALUES (?, ?, NOW())
+                    """;
+
+            PreparedStatement psHistorial = conn.prepareStatement(sqlHistorial);
+            psHistorial.setInt(1, idPedido);
+            psHistorial.setInt(2, idEstado);
+            psHistorial.executeUpdate();
+
+            conn.commit();
+
+        } catch (Exception e) {
+
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
+            e.printStackTrace();
+        }
+    }
+    
+    public void finalizarPedido(int idPedido, int idEstado, int puntos, boolean bonoAplicado) {
+        Connection conn = null;
+        try {
+            conn = ConexionDB.getConnection();
+            conn.setAutoCommit(false);
+
+            String sql = """
+                    UPDATE pedido
+                    SET id_estado_actual = ?,
+                        fecha_finalizacion = NOW(),
+                        puntos_obtenidos = ?,
+                        bono_eficiencia_aplicado = ?
+                    WHERE id_pedido = ?
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, idEstado);
+            ps.setInt(2, puntos);
+            ps.setBoolean(3, bonoAplicado); 
+            ps.setInt(4, idPedido);
+            ps.executeUpdate();
+
+            String sqlHistorial = """
+                    INSERT INTO historial_estado
+                    (id_pedido, id_estado, fecha_cambio)
+                    VALUES (?, ?, NOW())
+                    """;
+
+            PreparedStatement psHistorial = conn.prepareStatement(sqlHistorial);
+            psHistorial.setInt(1, idPedido);
+            psHistorial.setInt(2, idEstado);
+            psHistorial.executeUpdate();
+
+            conn.commit();
+        } catch (Exception e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+    }
 }
+

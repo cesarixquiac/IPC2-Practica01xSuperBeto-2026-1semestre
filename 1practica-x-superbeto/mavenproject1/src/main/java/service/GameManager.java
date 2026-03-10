@@ -32,6 +32,10 @@ public class GameManager {
 
     private PedidoGenerator pedidoGenerator;
 
+    private int idPartida;
+
+    private boolean partidaActiva = false;
+
     public GameManager(Usuario jugador, GameFrame gameFrame) {
 
         this.jugador = jugador;
@@ -46,11 +50,19 @@ public class GameManager {
 
         PartidaDAO partidaDAO = new PartidaDAO();
 
-        int idJugador = 1;
-        int idSucursal = 1;
+        int idJugador = jugador.getIdUsuario(); 
+        int idSucursal = jugador.getIdSucursal(); 
         int nivel = 1;
 
-        int idPartida = partidaDAO.crearPartida(idJugador,idSucursal,nivel);
+        idPartida = partidaDAO.crearPartida(idJugador, idSucursal, nivel);
+        
+        if (idPartida == -1) {
+            System.err.println("Error: No se pudo crear la partida en la base de datos.");
+        }
+
+        gameFrame.setIdPartida(idPartida);
+
+        partidaActiva = true;
 
         System.out.println("Partida creada con ID: " + idPartida);
 
@@ -62,6 +74,10 @@ public class GameManager {
 
         scheduler.scheduleAtFixedRate(() -> {
 
+            if(!partidaActiva){
+                return;
+            }
+
             tiempoRestante--;
 
             SwingUtilities.invokeLater(() -> {
@@ -69,45 +85,54 @@ public class GameManager {
             });
 
             if (tiempoRestante <= 0) {
-
                 finalizarPartida();
             }
 
-        },1,1,TimeUnit.SECONDS);
+        }, 1, 1, TimeUnit.SECONDS);
     }
 
-    public void finalizarPartida(){
+    public void finalizarPartida() {
+
+        if(!partidaActiva){
+            return;
+        }
+
+        partidaActiva = false;
 
         System.out.println("Partida finalizada");
 
-        if(pedidoGenerator != null){
+        if (pedidoGenerator != null) {
             pedidoGenerator.detener();
         }
 
-        if(scheduler != null){
+        if (scheduler != null) {
             scheduler.shutdown();
         }
 
+        
+        int puntajeFinal = gameFrame.getPuntaje();
+        int nivelFinal = gameFrame.getNivelActual();
+
         SwingUtilities.invokeLater(() -> {
-
-            gameFrame.limpiarPedidos();
-            gameFrame.mostrarResumenFinal();
-
+            gameFrame.finalizarPartida();
         });
 
-        guardarResultado();
+        guardarResultado(puntajeFinal, nivelFinal);
     }
 
-    private void guardarResultado(){
+    private void guardarResultado(int puntajeFinal, int nivelFinal) {
 
         System.out.println("Guardando resultado en base de datos...");
         System.out.println("Jugador: " + jugador.getNombre());
 
+        PartidaDAO partidaDAO = new PartidaDAO();
+
+        partidaDAO.finalizarPartida(idPartida, puntajeFinal, nivelFinal);
+
+        System.out.println("Partida guardada con puntaje: " + puntajeFinal + " | Nivel Alcanzado: " + nivelFinal);
     }
-    
-        public void revisarPedidosVencidos(){
 
-        System.out.println("Revisando pedidos vencidos...");
-
+    public GameFrame getGameFrame() {
+        return gameFrame;
     }
 }

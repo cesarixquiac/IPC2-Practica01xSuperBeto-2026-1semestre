@@ -52,9 +52,7 @@ public class PedidoGenerator {
     }
 
 private void generarPedido() {
-
     try {
-
         if (gameFrame.getCantidadPedidos() >= 5) {
             System.out.println("Máximo de pedidos activos alcanzado");
             return;
@@ -62,41 +60,32 @@ private void generarPedido() {
 
         Random random = new Random();
         int cantidadProductos = random.nextInt(3) + 1;
-
         ProductoDAO productoDAO = new ProductoDAO();
-
-        List<Producto> productos =
-                productoDAO.obtenerProductosAleatorios(cantidadProductos);
+        List<Producto> productos = productoDAO.obtenerProductosAleatorios(cantidadProductos);
 
         System.out.println("----- NUEVO PEDIDO -----");
-
         String pedidoTexto = "";
-
         for (Producto p : productos) {
-
             System.out.println("Producto: " + p.getNombre());
-
             pedidoTexto += p.getNombre() + "<br>";
         }
 
         PedidoDAO pedidoDAO = new PedidoDAO();
 
-        int tiempoLimite = 60;
+        
+        int tiempoLimite = gameFrame.getTiempoBaseActual(); 
 
         int idPedido = pedidoDAO.crearPedido(idPartida, tiempoLimite, productos);
 
         if (idPedido > 0) {
-
-            System.out.println("Pedido guardado en BD con ID: " + idPedido);
+            System.out.println("Pedido guardado en BD con ID: " + idPedido + " - Tiempo asignado: " + tiempoLimite + "s");
 
             String textoFinal = pedidoTexto;
-
             SwingUtilities.invokeLater(() -> {
-                gameFrame.agregarPedido(textoFinal);
+              
+                gameFrame.agregarPedido(idPedido, textoFinal, tiempoLimite);
             });
-
         }
-
     } catch (Exception e) {
         e.printStackTrace();
     }
