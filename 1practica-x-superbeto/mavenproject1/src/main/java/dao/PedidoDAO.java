@@ -140,7 +140,7 @@ public class PedidoDAO {
     }
 
 
-    // NUEVO MÉTODO PARA TERMINAR PEDIDOS
+   
     public void finalizarPedido(int idPedido, int idEstado, int puntos) {
 
         Connection conn = null;

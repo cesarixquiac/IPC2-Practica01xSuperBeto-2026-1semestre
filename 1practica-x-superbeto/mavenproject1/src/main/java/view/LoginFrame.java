@@ -120,35 +120,40 @@ public class LoginFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_LoginButtonActionPerformed
 
-     private void redireccionar(Usuario usuario) {
+   private void redireccionar(Usuario usuario) {
 
-    String rol = usuario.getRol().getNombre();
+        String rol = usuario.getRol().getNombre();
 
-    switch (rol) {
+        switch (rol) {
 
-        case "JUGADOR":
+            case "JUGADOR":
 
-            GameFrame frame = new GameFrame(usuario.getNombre());
+                GameFrame frame = new GameFrame(usuario.getNombre());
+                GameManager manager = new GameManager(usuario, frame);
+                frame.setVisible(true);
+                manager.iniciarPartida();
+                dispose(); // Cierra el login
 
-            GameManager manager = new GameManager(usuario, frame);
+                break;
 
-            frame.setVisible(true);
+            case "ADMIN_TIENDA":
+                
+             
+                AdminFrame adminFrame = new AdminFrame(usuario);
+                adminFrame.setVisible(true);
+                dispose(); // Cierra el login
+       
+                
+                break;
 
-            manager.iniciarPartida();
-
-            dispose();
-
-            break;
-
-        case "ADMIN_TIENDA":
-            JOptionPane.showMessageDialog(this,"Abrir panel administrador");
-            break;
-
-        case "SUPER_ADMIN":
-            JOptionPane.showMessageDialog(this,"Abrir panel super admin");
-            break;
+            case "SUPER_ADMIN":
+               
+                SuperAdminFrame superFrame = new SuperAdminFrame(usuario);
+                superFrame.setVisible(true);
+                dispose(); 
+                break;
+        }
     }
-}
     
     private void txtUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsuarioActionPerformed
         // TODO add your handling code here:

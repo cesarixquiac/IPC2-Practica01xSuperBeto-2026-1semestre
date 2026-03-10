@@ -18,24 +18,29 @@ import java.util.List;
  */
 public class ProductoDAO {
 
-    public List<Producto> obtenerProductosAleatorios(int cantidad) {
+ 
+    public List<Producto> obtenerProductosAleatorios(int cantidad, int idSucursal) {
 
         List<Producto> productos = new ArrayList<>();
 
+
         String sql = """
-    SELECT id_producto, nombre
-    FROM producto
-    WHERE activo_global = 1
-    ORDER BY RAND()
-    LIMIT ?
-""";
+            SELECT p.id_producto, p.nombre
+            FROM producto p
+            JOIN inventario_sucursal inv ON p.id_producto = inv.id_producto
+            WHERE inv.id_sucursal = ? AND inv.activo = 1 AND p.activo_global = 1
+            ORDER BY RAND()
+            LIMIT ?
+        """;
 
         try {
 
             Connection conn = ConexionDB.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
 
-            ps.setInt(1, cantidad);
+       
+            ps.setInt(1, idSucursal);
+            ps.setInt(2, cantidad);
 
             ResultSet rs = ps.executeQuery();
 
@@ -44,7 +49,6 @@ public class ProductoDAO {
                 Producto p = new Producto();
                 p.setIdProducto(rs.getInt("id_producto"));
                 p.setNombre(rs.getString("nombre"));
-
 
                 productos.add(p);
             }

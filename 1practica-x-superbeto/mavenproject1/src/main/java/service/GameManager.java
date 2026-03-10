@@ -66,10 +66,13 @@ public class GameManager {
 
         System.out.println("Partida creada con ID: " + idPartida);
 
-        pedidoGenerator = new PedidoGenerator(gameFrame);
+       pedidoGenerator = new PedidoGenerator(gameFrame);
         pedidoGenerator.setIdPartida(idPartida);
+        
+    
+        pedidoGenerator.setIdSucursal(idSucursal); 
+        
         pedidoGenerator.iniciarGeneracion();
-
         scheduler = Executors.newSingleThreadScheduledExecutor();
 
         scheduler.scheduleAtFixedRate(() -> {
