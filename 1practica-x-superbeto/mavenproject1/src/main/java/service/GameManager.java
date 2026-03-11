@@ -41,7 +41,7 @@ public class GameManager {
         this.jugador = jugador;
         this.gameFrame = gameFrame;
 
-        this.tiempoRestante = 180;
+        this.tiempoRestante = 90;
     }
 
     public void iniciarPartida() {

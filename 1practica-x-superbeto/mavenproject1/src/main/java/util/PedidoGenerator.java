@@ -54,7 +54,7 @@ public class PedidoGenerator {
 
             generarPedido();
 
-        }, 5, 10, TimeUnit.SECONDS);
+        }, 5, 5, TimeUnit.SECONDS);
     }
 
     private void generarPedido() {

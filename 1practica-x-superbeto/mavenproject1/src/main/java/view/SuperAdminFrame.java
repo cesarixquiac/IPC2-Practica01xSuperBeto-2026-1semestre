@@ -28,39 +28,59 @@ public class SuperAdminFrame extends JFrame {
     private JTable tablaRanking;
     private DefaultTableModel modeloRanking;
 
-
     private JTable tablaSucursales;
     private DefaultTableModel modeloSucursales;
 
-  
     private JTable tablaUsuarios;
     private DefaultTableModel modeloUsuarios;
+
+    
+    private JTable tablaParametros;
+    private DefaultTableModel modeloParametros;
 
     public SuperAdminFrame(Usuario superAdmin) {
         this.superAdmin = superAdmin;
 
         setTitle("Pizza Express Tycoon - Panel de SUPER ADMINISTRADOR");
-        setSize(900, 600);
+        setSize(950, 650);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
+       
+        JPanel panelNorte = new JPanel(new BorderLayout());
+        
         JLabel lblTitulo = new JLabel("Panel de Control Global - Bienvenido " + superAdmin.getNombre(), SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 18));
         lblTitulo.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
-        add(lblTitulo, BorderLayout.NORTH);
+        
+        JButton btnCerrarSesion = new JButton("Cerrar Sesión");
+        btnCerrarSesion.setBackground(new Color(255, 100, 100)); 
+        btnCerrarSesion.setForeground(Color.WHITE);
+        btnCerrarSesion.addActionListener(e -> cerrarSesion());
+        
+        JPanel panelBotonSalir = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 15));
+        panelBotonSalir.add(btnCerrarSesion);
+
+        panelNorte.add(lblTitulo, BorderLayout.CENTER);
+        panelNorte.add(panelBotonSalir, BorderLayout.EAST);
+        
+        add(panelNorte, BorderLayout.NORTH);
+     
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
         tabbedPane.addTab("Ranking y Estadísticas Globales", crearPanelEstadisticas());
         tabbedPane.addTab("Gestión de Sucursales", crearPanelSucursales());
         tabbedPane.addTab("Gestión de Usuarios", crearPanelUsuarios()); 
+        tabbedPane.addTab("Parámetros del Juego", crearPanelParametros()); 
 
         add(tabbedPane, BorderLayout.CENTER);
 
         cargarDatosEstadisticas();
         cargarDatosSucursales();
         cargarDatosUsuarios();
+        cargarDatosParametros(); 
     }
 
     private JPanel crearPanelEstadisticas() {
@@ -111,7 +131,6 @@ public class SuperAdminFrame extends JFrame {
         JScrollPane scrollTabla = new JScrollPane(tablaSucursales);
         panel.add(scrollTabla, BorderLayout.CENTER);
 
-        
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         JButton btnCrear = new JButton("Crear");
         JButton btnEditar = new JButton("Editar");
@@ -139,7 +158,6 @@ public class SuperAdminFrame extends JFrame {
         return panel;
     }
 
-  
     private JPanel crearPanelUsuarios() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -154,7 +172,6 @@ public class SuperAdminFrame extends JFrame {
         JScrollPane scrollTabla = new JScrollPane(tablaUsuarios);
         panel.add(scrollTabla, BorderLayout.CENTER);
 
-       
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         JButton btnCrear = new JButton("Registrar");
         JButton btnEditar = new JButton("Editar");
@@ -177,6 +194,34 @@ public class SuperAdminFrame extends JFrame {
         panelBotones.add(btnActivar);
         panelBotones.add(btnDesactivar);
         
+        panel.add(panelBotones, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    
+    private JPanel crearPanelParametros() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        String[] columnas = {"ID", "Nivel", "Tiempo Base (s)", "Pedidos para Subir", "Puntos para Subir"};
+        modeloParametros = new DefaultTableModel(columnas, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
+        tablaParametros = new JTable(modeloParametros);
+        tablaParametros.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
+        tablaParametros.setRowHeight(25);
+        
+        JScrollPane scrollTabla = new JScrollPane(tablaParametros);
+        scrollTabla.setBorder(BorderFactory.createTitledBorder("Configuración de Dificultad por Nivel"));
+        panel.add(scrollTabla, BorderLayout.CENTER);
+
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        JButton btnEditarParametros = new JButton("Editar Parámetros del Nivel");
+        btnEditarParametros.setBackground(new Color(255, 255, 150));
+        btnEditarParametros.addActionListener(e -> mostrarDialogoEditarParametro());
+        
+        panelBotones.add(btnEditarParametros);
         panel.add(panelBotones, BorderLayout.SOUTH);
 
         return panel;
@@ -214,6 +259,15 @@ public class SuperAdminFrame extends JFrame {
         for (Object[] fila : dao.obtenerTodosLosUsuarios()) modeloUsuarios.addRow(fila);
     }
 
+   
+    private void cargarDatosParametros() {
+        SuperAdminDAO dao = new SuperAdminDAO();
+        modeloParametros.setRowCount(0);
+        for (Object[] fila : dao.obtenerParametrosGlobales()) {
+            modeloParametros.addRow(fila);
+        }
+    }
+
     private void mostrarDialogoCrearSucursal() {
         JTextField txtNombre = new JTextField(15);
         JTextField txtDireccion = new JTextField(15);
@@ -239,11 +293,9 @@ public class SuperAdminFrame extends JFrame {
         }
     }
 
-   
     private void mostrarDialogoCrearUsuario() {
         SuperAdminDAO dao = new SuperAdminDAO();
         
-     
         Map<String, Integer> mapaRoles = dao.obtenerMapaRoles();
         Map<String, Integer> mapaSucursales = dao.obtenerMapaSucursales();
 
@@ -274,7 +326,6 @@ public class SuperAdminFrame extends JFrame {
                 return;
             }
 
-           
             String rolSeleccionado = (String) comboRoles.getSelectedItem();
             int idRol = mapaRoles.get(rolSeleccionado);
             
@@ -317,7 +368,6 @@ public class SuperAdminFrame extends JFrame {
         }
     }
     
- 
     private void cambiarEstadoSucursalBD(boolean activar) {
         int fila = tablaSucursales.getSelectedRow();
         if (fila == -1) {
@@ -375,7 +425,6 @@ public class SuperAdminFrame extends JFrame {
         }
     }
 
- 
     private void cambiarEstadoUsuarioBD(boolean activar) {
         int fila = tablaUsuarios.getSelectedRow();
         if (fila == -1) {
@@ -398,7 +447,6 @@ public class SuperAdminFrame extends JFrame {
         }
     }
     
-   
     private void mostrarDialogoEditarSucursal() {
         int fila = tablaSucursales.getSelectedRow();
         if (fila == -1) {
@@ -406,7 +454,6 @@ public class SuperAdminFrame extends JFrame {
             return;
         }
 
-  
         int idSucursal = (int) tablaSucursales.getValueAt(fila, 0);
         String nombreActual = (String) tablaSucursales.getValueAt(fila, 1);
         String dirActual = (String) tablaSucursales.getValueAt(fila, 2);
@@ -439,4 +486,72 @@ public class SuperAdminFrame extends JFrame {
             }
         }
     }
+
+  
+    private void mostrarDialogoEditarParametro() {
+        int fila = tablaParametros.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un nivel de la tabla para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int idNivel = (int) tablaParametros.getValueAt(fila, 0);
+        int numeroNivel = (int) tablaParametros.getValueAt(fila, 1);
+        int tiempoActual = (int) tablaParametros.getValueAt(fila, 2);
+        int pedidosActual = (int) tablaParametros.getValueAt(fila, 3);
+        int puntosActual = (int) tablaParametros.getValueAt(fila, 4);
+
+        JTextField txtTiempo = new JTextField(String.valueOf(tiempoActual), 10);
+        JTextField txtPedidos = new JTextField(String.valueOf(pedidosActual), 10);
+        JTextField txtPuntos = new JTextField(String.valueOf(puntosActual), 10);
+
+        Object[] formulario = {
+            "Editando Configuración del Nivel " + numeroNivel,
+            " ", 
+            "Tiempo Base (segundos):", txtTiempo,
+            "Pedidos requeridos para subir:", txtPedidos,
+            "Puntos otorgados al subir:", txtPuntos
+        };
+
+        int opcion = JOptionPane.showConfirmDialog(this, formulario, "Editar Dificultad - Nivel " + numeroNivel, JOptionPane.OK_CANCEL_OPTION);
+
+        if (opcion == JOptionPane.OK_OPTION) {
+            try {
+                int nuevoTiempo = Integer.parseInt(txtTiempo.getText().trim());
+                int nuevosPedidos = Integer.parseInt(txtPedidos.getText().trim());
+                int nuevosPuntos = Integer.parseInt(txtPuntos.getText().trim());
+
+                if (nuevoTiempo <= 0 || nuevosPedidos <= 0 || nuevosPuntos <= 0) {
+                    JOptionPane.showMessageDialog(this, "Todos los valores deben ser mayores a 0.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                SuperAdminDAO dao = new SuperAdminDAO();
+                if(dao.modificarNivel(idNivel, nuevoTiempo, nuevosPedidos, nuevosPuntos)) {
+                    JOptionPane.showMessageDialog(this, "Parámetros del Nivel " + numeroNivel + " actualizados correctamente.");
+                    cargarDatosParametros(); 
+                } else {
+                    JOptionPane.showMessageDialog(this, "Error al actualizar en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Por favor, ingrese solo números enteros válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    
+    private void cerrarSesion() {
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "¿Estás seguro que deseas cerrar sesión?", 
+            "Confirmar", 
+            JOptionPane.YES_NO_OPTION);
+            
+        if (confirm == JOptionPane.YES_OPTION) {
+            
+            LoginFrame login = new LoginFrame();
+            login.setVisible(true);
+            this.dispose();
+        }
+    }
 }
+

@@ -77,7 +77,7 @@ public class GameFrame extends JFrame {
 
         labelJugador = new JLabel("Jugador: " + jugador);
         labelNivel = new JLabel("Nivel: " + nivelActual, SwingConstants.CENTER); 
-        labelTiempo = new JLabel("Tiempo: 180", SwingConstants.CENTER);
+        labelTiempo = new JLabel("Tiempo: 90", SwingConstants.CENTER);
         labelPuntaje = new JLabel("Puntos: 0", SwingConstants.RIGHT);
 
         panelInfo.add(labelJugador);

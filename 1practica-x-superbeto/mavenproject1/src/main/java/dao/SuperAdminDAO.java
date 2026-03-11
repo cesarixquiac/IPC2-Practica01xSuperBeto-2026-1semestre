@@ -206,4 +206,47 @@ public class SuperAdminDAO {
             return ps.executeUpdate() > 0;
         } catch (Exception e) { e.printStackTrace(); return false; }
     }
+    
+   
+   
+
+    public List<Object[]> obtenerParametrosGlobales() {
+        List<Object[]> parametros = new ArrayList<>();
+      
+        String sql = "SELECT id_nivel, numero_nivel, tiempo_base_segundos, pedidos_para_subir, puntos_para_subir FROM nivel ORDER BY numero_nivel ASC";
+        
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                parametros.add(new Object[]{
+                    rs.getInt("id_nivel"), 
+                    rs.getInt("numero_nivel"), 
+                    rs.getInt("tiempo_base_segundos"),
+                    rs.getInt("pedidos_para_subir"),
+                    rs.getInt("puntos_para_subir")
+                });
+            }
+        } catch (Exception e) { 
+            System.err.println("Error al obtener parámetros:");
+            e.printStackTrace(); 
+        }
+        return parametros;
+    }
+
+  
+    public boolean modificarNivel(int idNivel, int tiempoBase, int pedidosSubir, int puntosSubir) {
+        String sql = "UPDATE nivel SET tiempo_base_segundos = ?, pedidos_para_subir = ?, puntos_para_subir = ? WHERE id_nivel = ?";
+        try (Connection conn = ConexionDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, tiempoBase);
+            ps.setInt(2, pedidosSubir);
+            ps.setInt(3, puntosSubir);
+            ps.setInt(4, idNivel);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+            return false; 
+        }
+    }
 }

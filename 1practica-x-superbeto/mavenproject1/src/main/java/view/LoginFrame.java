@@ -132,7 +132,7 @@ public class LoginFrame extends javax.swing.JFrame {
                 GameManager manager = new GameManager(usuario, frame);
                 frame.setVisible(true);
                 manager.iniciarPartida();
-                dispose(); // Cierra el login
+                dispose(); 
 
                 break;
 
@@ -141,7 +141,7 @@ public class LoginFrame extends javax.swing.JFrame {
              
                 AdminFrame adminFrame = new AdminFrame(usuario);
                 adminFrame.setVisible(true);
-                dispose(); // Cierra el login
+                dispose(); 
        
                 
                 break;
